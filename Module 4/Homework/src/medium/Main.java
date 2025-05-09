@@ -8,8 +8,13 @@ public class Main {
         DataSource<GeoData> geoDataDataSource = new GeoRepository(
                 new CachedDataSource<>(), new GeoDataCloudDataSource());
 
+        DataSource<UserData> userDataDataSource = new UserRepository(
+                new CachedDataSource<>(), new UserDataCloudDataSource());
+
         MyData myData = myDataDataSource.getData();
         GeoData geoData = geoDataDataSource.getData();
+        UserData userData = userDataDataSource.getData();
+        System.out.println(userData.toString());
         System.out.println(myData.toString());
         System.out.println(geoData.toString());
     }

@@ -1,12 +1,11 @@
 package medium;
 
-public class GeoData {
-    private final int id;
+public class GeoData extends Data {
     private final double longitude;
     private final double latitude;
 
     public GeoData(int id, double longitude, double latitude) {
-        this.id = id;
+        super(id);
         this.longitude = longitude;
         this.latitude = latitude;
     }

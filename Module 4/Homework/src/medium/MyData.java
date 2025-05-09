@@ -1,11 +1,10 @@
 package medium;
 
-public class MyData {
-    private final int id;
+public class MyData extends Data {
     private final String description;
 
     public MyData(int id, String description) {
-        this.id = id;
+        super(id);
         this.description = description;
     }
 
