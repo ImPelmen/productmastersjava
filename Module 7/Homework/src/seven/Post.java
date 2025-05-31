@@ -1,5 +1,8 @@
 package seven;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Post {
 
     private final String id;
@@ -11,6 +14,8 @@ public class Post {
     private Integer likes;
 
     private Integer reposts;
+
+    private List<Commentary> commentaries = new ArrayList<>();
 
     public Post(User author, String content, Long iterator) {
         this.author = author;
@@ -46,6 +51,14 @@ public class Post {
         }
         iterator++;
         return author.getName() + "_" + unixTime + "_" + iterator;
+    }
+
+    public void addComment(Commentary commentary) {
+        commentaries.add(commentary);
+    }
+
+    public List<Commentary> getCommentaries() {
+        return commentaries;
     }
 
     public String getId() {

@@ -5,6 +5,8 @@ import java.util.*;
 
 public class TwitterService {
 
+    private Long commentIterator = 0L;
+
     private final List<Post> posts = new ArrayList<>();
 
     public void initializePosts() {
@@ -21,7 +23,11 @@ public class TwitterService {
     }
 
     public void showPosts() {
-        posts.forEach(System.out::println);
+        if (posts.isEmpty()) {
+            System.out.println("На данный момент постов нет");
+        } else {
+            posts.forEach(System.out::println);
+        }
     }
 
     public Optional<Post> searchByAuthorAndIterator(String username, Long iterator) {
@@ -43,5 +49,14 @@ public class TwitterService {
             return Collections.emptyList();
         }
         return posts.stream().filter(post -> post.getAuthor().getName().equals(author.getName())).toList();
+    }
+
+    public void deletePost(Post post) {
+        posts.remove(post);
+    }
+
+    public void createComment(String comment, Post post) {
+        Commentary commentary = new Commentary(++commentIterator, comment);
+        post.addComment(commentary);
     }
 }

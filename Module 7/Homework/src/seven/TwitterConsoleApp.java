@@ -80,6 +80,54 @@ public class TwitterConsoleApp {
                     System.out.println(authorPosts);
                 }
                 case 7 -> {
+                    System.out.println("Введите автора Поста: ");
+                    String posAuthorName = scanner.nextLine().trim();
+                    System.out.println("Введите номер поста: ");
+                    Long postNumber = Long.valueOf(scanner.nextLine().trim());
+                    Optional<Post> postOptional = twitterService.searchByAuthorAndIterator(posAuthorName, postNumber);
+                    if (postOptional.isEmpty()) {
+                        System.out.println("Пост от автора " + posAuthorName + " с номером " + postNumber + " не найден!");
+                    } else {
+                        Post post = postOptional.get();
+                        System.out.println("Введите комментарий: ");
+                        String comment = scanner.nextLine().trim();
+                        twitterService.createComment(comment, post);
+                        System.out.println("Вы комментарий к посту № " + postNumber + " от автора " + post.getAuthor().getName());
+                    }
+                }
+                case 8 -> {
+                    System.out.println("Введите автора Поста: ");
+                    String posAuthorName = scanner.nextLine().trim();
+                    System.out.println("Введите номер поста: ");
+                    Long postNumber = Long.valueOf(scanner.nextLine().trim());
+                    Optional<Post> postOptional = twitterService.searchByAuthorAndIterator(posAuthorName, postNumber);
+                    if (postOptional.isEmpty()) {
+                        System.out.println("Пост от автора " + posAuthorName + " с номером " + postNumber + " не найден!");
+                    } else {
+                        Post post = postOptional.get();
+                        List<Commentary> commentaries = post.getCommentaries();
+                        if (commentaries.isEmpty()) {
+                            System.out.println("К данному посту пока нет комментариев");
+                        } else {
+                            System.out.println(commentaries);
+                        }
+                    }
+                }
+                case 9 -> {
+                    System.out.println("Введите автора Поста: ");
+                    String posAuthorName = scanner.nextLine().trim();
+                    System.out.println("Введите номер поста: ");
+                    Long postNumber = Long.valueOf(scanner.nextLine().trim());
+                    Optional<Post> postOptional = twitterService.searchByAuthorAndIterator(posAuthorName, postNumber);
+                    if (postOptional.isEmpty()) {
+                        System.out.println("Пост от автора " + posAuthorName + " с номером " + postNumber + " не найден!");
+                    } else {
+                        Post post = postOptional.get();
+                        twitterService.deletePost(post);
+                        System.out.println("Вы поставили like посту № " + postNumber + " от автора " + post.getAuthor().getName() + ". Общее количество лайков у поста: " + post.getLikes());
+                    }
+                }
+                case 10 -> {
                     System.out.println("Выход...");
                     return;
                 }
@@ -107,7 +155,10 @@ public class TwitterConsoleApp {
         System.out.println("4. Показать все посты");
         System.out.println("5. Показать популярные посты");
         System.out.println("6. Показать мои посты");
-        System.out.println("7. Выход");
+        System.out.println("7. Написать коммент под пост");
+        System.out.println("8. Получить комментарий поста");
+        System.out.println("9. Удалить пост");
+        System.out.println("10. Выход");
         System.out.print("Выберите действие: ");
     }
 
