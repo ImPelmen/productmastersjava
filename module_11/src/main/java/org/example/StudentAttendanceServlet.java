@@ -11,16 +11,14 @@ import org.example.util.AttendanceNameUtil;
 import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 @WebServlet("/attendance")
 public class StudentAttendanceServlet extends HttpServlet {
 
     private static final String DB_URL = "jdbc:postgresql://localhost:5432/postgres";
     private static final String DB_USER = "postgres";
-    private static final String DB_PASSWORD = "postgres";
+    private static final String DB_PASSWORD = "admin";
 
     @Override
     public void init() throws ServletException {
@@ -57,7 +55,7 @@ public class StudentAttendanceServlet extends HttpServlet {
         out.println("<body>");
         out.println("<h2>Посещение лекций</h2>");
 
-        out.println("<form action='/ServletPractice/attendance' method='POST'>");
+        out.println("<form action='/module_11/attendance' method='POST'>");
         out.println("ФИО: <input type='text' name='name' required><br>");
         out.println("Группа: <input type='text' name='groupName' required><br>");
         out.println("Посетил: <select name='isAttended'><option value='true'>Да</option><option value='false'>Нет</option></select><br>");
@@ -111,14 +109,19 @@ public class StudentAttendanceServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        StudentAttendanceDto newStudentAttendanceInfo  = StudentAttendanceDto.builder()
-//                .name(req.getParameter("name"))
-//                .groupName(req.getParameter("groupName"))
-//                .isAttended(Boolean.parseBoolean(req.getParameter("isAttended")))
-//                .build();
-//        list.add(newStudentAttendanceInfo);
-//        saveToFile(newStudentAttendanceInfo);
-//
-//        resp.sendRedirect("/ServletPractice/attendance");
+        String sql = "INSERT INTO students (name, group_name, is_attended) VALUES (?, ?, ?)";
+        String name = req.getParameter("name");
+        String groupName = req.getParameter("groupName");
+        boolean isAttended = Boolean.parseBoolean(req.getParameter("isAttended"));
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql);) {
+            pstmt.setString(1, name);
+            pstmt.setString(2, groupName);
+            pstmt.setBoolean(3, isAttended);
+            pstmt.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        resp.sendRedirect("/module_11/attendance");
     }
 }
