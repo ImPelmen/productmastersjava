@@ -10,6 +10,7 @@ import lombok.ToString;
 @Builder
 @ToString
 public class StudentAttendanceDto {
+    private Long id;
     private String name;
     private String groupName;
     private boolean isAttended;
