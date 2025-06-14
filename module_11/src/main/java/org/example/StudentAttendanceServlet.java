@@ -12,6 +12,7 @@ import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @WebServlet("/attendance")
 public class StudentAttendanceServlet extends HttpServlet {
@@ -83,7 +84,7 @@ public class StudentAttendanceServlet extends HttpServlet {
     }
 
     private List<StudentAttendanceDto> getStudentsFromDB() {
-        String sql = "Select * from students";
+        String sql = "Select s.name, s.is_attended, g.name as group_name from students s left join groups g on s.group_id = g.id";
         List<StudentAttendanceDto> result = new ArrayList<>();
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -109,19 +110,67 @@ public class StudentAttendanceServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String sql = "INSERT INTO students (name, group_name, is_attended) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO students (name, group_id, is_attended) VALUES (?, ?, ?)";
         String name = req.getParameter("name");
-        String groupName = req.getParameter("groupName");
+        String groupName = req.getParameter("groupName").trim();
         boolean isAttended = Boolean.parseBoolean(req.getParameter("isAttended"));
+        Integer groupId = getGroupIdByName(groupName);
+        if (Objects.isNull(groupId)) {
+            groupId = createGroup(groupName);
+        }
+        if (Objects.isNull(groupId)) {
+            throw new RuntimeException("Что-то пошло не так в создании группы");
+        }
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(sql);) {
             pstmt.setString(1, name);
-            pstmt.setString(2, groupName);
+            pstmt.setInt(2, groupId);
             pstmt.setBoolean(3, isAttended);
             pstmt.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         resp.sendRedirect("/module_11/attendance");
+    }
+
+    private Integer getGroupIdByName(String groupName) {
+        String sql = "select * from groups where name = ?";
+        List<StudentAttendanceDto> result = new ArrayList<>();
+        Integer groupId = null;
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ) {
+            pstmt.setString(1, groupName);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                groupId = rs.getInt("id");
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return groupId;
+    }
+
+    private Integer createGroup(String groupName) {
+        String sql = "INSERT INTO groups (name) VALUES (?)";
+        Integer groupId = null;
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
+            pstmt.setString(1, groupName);
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        groupId = generatedKeys.getInt(1);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return groupId;
     }
 }
